@@ -1,0 +1,63 @@
+﻿@page "/"
+@using ClientApp.Components
+@using Microsoft.AspNetCore.Components.Authorization
+@inject IAuthManager _AuthManager;
+@inject NavigationManager navigationManager
+
+@*
+    Todo: show some kind of authenticated homepage/dashboard
+*@
+
+@*
+    sample for auth sections
+    could be used to display premium features not available for the standard user
+*@
+<AuthorizeView>
+    <NotAuthorized>
+        You need to log in
+        <Login />
+    </NotAuthorized>
+</AuthorizeView>
+<AuthorizeView>
+    <h2>Welcome, @_user.FirstName</h2>
+    <SearchUsers />
+</AuthorizeView>
+<AuthorizeView Roles="admin">
+    <strong>Your an admin!!</strong>
+</AuthorizeView>
+
+<h3>Received File</h3>
+<p>File Path: @FilePath</p>
+
+@code {
+    private string authMessage;
+    private string surnameMessage;
+    private User _user = new();
+    public string FilePath { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _user = await _AuthManager.GetUserFromAuthState();
+            FilePathEvent.OnFilePathSet += SetFilePath;
+        }
+        catch (Exception ex)
+        {
+
+            throw;
+        }
+    }
+
+    private void SetFilePath(string filePath)
+    {
+        FilePath = filePath;
+        StateHasChanged(); // Notify Blazor that the state has changed and the UI needs to be re-rendered
+    }
+
+    // Unsubscribe from the event when the component is disposed of to avoid memory leaks
+    public void Dispose()
+    {
+        FilePathEvent.OnFilePathSet -= SetFilePath;
+    }
+}

@@ -1,0 +1,45 @@
+﻿@using ClientApp.Models.FirestoreModels
+@inject IFirestoreService _firestore
+
+<input type="text" @bind="SearchTerm" @oninput="HandleChange" />
+<p>Your searching for @SearchTerm</p>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Name</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in _users)
+        {
+            <tr>
+                <td>@@@user.Username</td>
+                <td>@user.FirstName @user.LastName</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private string SearchTerm { get; set; }
+    private List<FirestoreUser> _users = new();
+
+    private async Task HandleChange()
+    {
+        _users.Clear();
+        try
+        {
+            if (!string.IsNullOrWhiteSpace(SearchTerm) && SearchTerm.Length >= 3)
+            {
+                _users.AddRange(await _firestore.SearchDocumentsAsync<FirestoreUser>("UserData", "Username", SearchTerm));
+            }
+        }
+        catch (Exception ex)
+        {
+            
+            throw;
+        }
+    }
+    
+}

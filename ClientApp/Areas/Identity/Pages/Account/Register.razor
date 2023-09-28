@@ -1,0 +1,96 @@
+﻿@page "/Register"
+@inject NavigationManager Navigation;
+@inject IAuthManager _authManager;
+
+<h3>Register</h3>
+
+<div class="alert alert-info">
+    Please fill in form below to create an account
+</div>
+
+<EditForm Model="@registerViewModel" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="mb-3 alert alert-danger" hidden="@registerViewModel.RegistrationFailureHidden">
+        An error occured while creating your account
+    </div>
+
+    <div class="mb-3">
+        <InputText placeholder="#username" id="Userame" type="text" @bind-Value="registerViewModel.Username" class="form-control" />
+        <ValidationMessage For="@(() => registerViewModel.FirstName)" />
+    </div>
+    <div class="mb-3">
+        <InputText placeholder="John" id="FirstName" type="text" @bind-Value="registerViewModel.FirstName" class="form-control" />
+        <ValidationMessage For="@(() => registerViewModel.FirstName)" />
+    </div>
+    <div class="mb-3">
+        <InputText placeholder="Smith" id="LastName" type="text" @bind-Value="registerViewModel.LastName" class="form-control" />
+        <ValidationMessage For="@(() => registerViewModel.LastName)" />
+    </div>
+    <div class="mb-3">
+        <InputText placeholder="John@email.com" id="email" type="email" @bind-Value="registerViewModel.EmailAddress" class="form-control" />
+        <ValidationMessage For="@(() => registerViewModel.EmailAddress)" />
+    </div>
+    <div class="mb-3">
+        <div class="input-group">
+            <InputText placeholder="Password" id="password" type="@passwordInputType" @bind-Value="registerViewModel.Password" class="form-control" />
+            <span class="input-group-text" @onclick="ShowPassword">
+                <i class="bi bi-eye@(passwordInputType == "password"? "-slash" : "")" id="togglePassword" style="cursor: pointer;z-index: 100;"></i>
+            </span>            
+        </div>
+        <ValidationMessage For="@(() => registerViewModel.Password)" />
+    </div>  
+    <div class="mb-3">
+        <div class="input-group">
+            <InputText placeholder="Confirm password" id="confirmPassword" type="@passwordInputType" @bind-Value="registerViewModel.ConfirmPassword" class="form-control" />
+            <span class="input-group-text" @onclick="ShowPassword">
+                <i class="bi bi-eye@(passwordInputType == "password"? "-slash" : "")" id="togglePassword" style="cursor: pointer;z-index: 100;"></i>
+            </span>
+        </div>        
+        <ValidationMessage For="@(() => registerViewModel.ConfirmPassword)" />
+    </div>
+    <div class="form-check form-switch mb-3">
+        <InputCheckbox id="CanContact" type="checkbox" @bind-Value="registerViewModel.CanContact" class="form-check-input" />
+        <label class="form-check-label" for="CanContact">Sign up for our newsletter</label>
+    </div>
+    <div class="mb-3">
+        <button type="submit" class="btn btn-primary w-100">Sign up</button>
+    </div>
+</EditForm>
+
+@code {
+    private RegisterViewModel registerViewModel = new();
+    private string passwordInputType = "password";
+
+    private void ShowPassword()
+    {
+        if (passwordInputType == "password")
+        {
+            passwordInputType = "text";
+        }
+        else
+        {
+            passwordInputType = "password";
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            var result = await _authManager.CreateUser(registerViewModel);
+            if (!result)
+            {
+                //TODO: handle registration failure
+                registerViewModel.RegistrationFailureHidden = false;
+                return;
+            }
+            Navigation.NavigateTo("");
+        }
+        catch (Exception ex)
+        {            
+            //TODO: handle exceptions
+            throw ex;
+        }
+    }
+}

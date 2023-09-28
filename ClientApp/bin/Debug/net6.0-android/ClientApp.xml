@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ClientApp</name>
+    </assembly>
+    <members>
+        <!-- Badly formed XML comment ignored for member "T:ClientApp.CustomAuthenticationStateProvider" -->
+        <member name="M:ClientApp.CustomAuthenticationStateProvider.Login(System.String)">
+            <summary>
+            This method should be called upon a successful user login, and it will store the user's JWT token in SecureStorage.
+            Upon saving this it will also notify .NET that the authentication state has changed which will enable authenticated views
+            </summary>
+            <param name="token">Our JWT to store</param>
+            <returns></returns>
+        </member>
+        <member name="M:ClientApp.CustomAuthenticationStateProvider.Logout">
+            <summary>
+            This method should be called to log-off the user from the application, which simply removed the stored token and then
+            notifies of the change
+            </summary>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

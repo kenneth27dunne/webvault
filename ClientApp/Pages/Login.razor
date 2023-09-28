@@ -1,0 +1,71 @@
+﻿@page "/login"
+@inject NavigationManager Navigation;
+@inject IAuthManager _authManager;
+
+<h3>Login to Access Application</h3>
+
+<div class="alert alert-info">
+    This is a dummy login page, providing `Test` for the Username and Password will authenticate you.
+</div>
+
+<EditForm Model="@loginModel" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="alert alert-danger" hidden="@loginModel.LoginFailureHidden">
+        Invalid login attempt, please correct and try again.
+    </div>
+    <div class="mb-3">
+        <InputText placeholder="john@email.com" id="email" type="email" @bind-Value="loginModel.EmailAddress" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <div class="input-group">
+            <InputText placeholder="Password123" id="password" type="@passwordInputType" @bind-Value="loginModel.Password" class="form-control"/>
+            <span class="input-group-text" @onclick="@(() => ShowPassword())">
+                <i class="bi bi-eye@(passwordInputType == "password"? "-slash" : "")" id="togglePassword" style="cursor: pointer;z-index: 100;"></i>
+            </span>
+        </div>
+    </div>
+    <div class="mb-3">
+        <button type="submit" class="btn btn-primary w-100">Login Now</button>
+    </div>
+</EditForm>
+
+@code {
+    private LoginViewModel loginModel = new();
+    private string passwordInputType = "password";
+
+    private bool ShowPassword()
+    {        
+        if (passwordInputType == "password")
+        {
+            passwordInputType = "text";
+        }
+        else
+        {
+            passwordInputType = "password";
+        }
+        return false;
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            var result = await _authManager.Login(loginModel);
+            if (!result)
+            {
+                // TODO: handle failed login? 
+                // Eg. user doesn't exist, too many attempts etc
+                loginModel.LoginFailureHidden = false;
+                return;
+            }
+
+            Navigation.NavigateTo(""); 
+        }
+        catch (Exception ex)
+        {            
+            // TODO: handle exception
+            throw ex;
+        }
+    }
+}
